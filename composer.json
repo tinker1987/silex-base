@@ -19,12 +19,16 @@
         "symfony/translation": "~2.1",
         "symfony/validator": "~2.1",
         "symfony/monolog-bridge": "~2.1",
-        "symfony/twig-bridge": "~2.1",
+        "symfony/twig-bridge": "~2.3",
+        "twig/extensions": "*",
         "doctrine/dbal": ">=2.2.0,<2.4.0-dev",
         "phpunit/phpunit": "3.7.*",
         "knplabs/console-service-provider": "dev-master"
     },
       "autoload": {
-        "psr-0": {"": "src/"}
+        "psr-0": {
+            "Twig_Extensions_": "vendor/twig/extensions/lib/",
+            "": "src/"
+        }
     }
 }

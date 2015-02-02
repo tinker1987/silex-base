@@ -3,9 +3,6 @@
 // Composer autoloading (PSR-0).
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// Require config.
-require_once __DIR__ . '/config.php';
-
 // Namespaces.
 use Knp\Provider\RepositoryServiceProvider;
 use Igorw\Silex\ConfigServiceProvider;
@@ -21,18 +18,23 @@ use Silex\Provider\ValidatorServiceProvider;
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
 use Knp\Provider\ConsoleServiceProvider;
 
+// Env constants
+define('PRODUCTION', 'prod');
+define('DEVELOPMENT', 'dev');
+define('TEST', 'test');
+
 /**
  * Application Configuration
  *
  */
 $app = new Silex\Application();
-$app['debug'] = true;
 
 /**
  * ConfigServiceProvider
  *
  */
-$app->register(new ConfigServiceProvider(__DIR__ . '/config.php'));
+$env = getenv('APP_ENV') ? : PRODUCTION;
+$app->register(new Igorw\Silex\ConfigServiceProvider(__DIR__ . "/config/$env.json"));
 
 /**
  * Doctrine - Database Access
@@ -88,7 +90,7 @@ $app->register(new SecurityServiceProvider(), array(
             'form' => array('login_path' => '/user/login', 'check_path' => '/admin/login_check'),
             'logout' => array('logout_path' => '/user/logout'),
             'users' => $app->share(function() use ($app){
-                return new Classes\User\UserProvider($app['db']);
+                return new \Classes\User\UserProvider($app['db']);
             })
         ),
     ),
@@ -113,7 +115,8 @@ $app->register(new TranslationServiceProvider(), array(
  *
  */
 $app->register(new TwigServiceProvider(), array(
-    'twig.path' => __DIR__ . '/../web/public/views'
+    'twig.debug' => true,
+    'twig.path' => __DIR__ . '/../src/Views'
 ));
 
 // Extending Twig
@@ -145,4 +148,11 @@ $app->register(new ConsoleServiceProvider(), array(
     'console.project_directory' => __DIR__ . '/..'
 ));
 
-return $app;
+require_once __DIR__ . '/router.php';
+
+/**
+ * Run
+ *
+ */
+$app->run();
+

@@ -19,6 +19,9 @@ use Classes\User\User;
  */
 class UserProvider implements UserProviderInterface {
 
+    /**
+     * @var Connection
+     */
     private $conn;
 
     public function __construct(Connection $conn) {
@@ -29,10 +32,13 @@ class UserProvider implements UserProviderInterface {
      * Method used for logging users in and returning our User Entity object
      *
      * @param   string      $username     The email
-     * @return  Classes\User\User
+     * @return  User
      */
     public function loadUserByUsername($username) {
-        $stmt = $this->conn->executeQuery('SELECT * FROM users WHERE username = ? OR email = ?', array(strtolower($username), strtolower($username)));
+        $stmt = $this->conn->executeQuery(
+            'SELECT * FROM users WHERE username = ? OR email = ?',
+            [strtolower($username), strtolower($username)]
+        );
 
         if (!$user = $stmt->fetch()) {
             throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
@@ -50,7 +56,7 @@ class UserProvider implements UserProviderInterface {
      */
     public function getServicesForUser($userId) {
         $ret = array();
-        $services = $this->conn->fetchAll('SELECT s.* FROM services AS s WHERE s.user_id = ?', array($userId));
+        $services = $this->conn->fetchAll('SELECT s.* FROM services AS s WHERE s.user_id = ?', [$userId]);
         if (is_array($services) && !empty($services)) {
             foreach ($services as $service) {
                 $ret[$service['type']] = $service;
